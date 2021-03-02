@@ -19,6 +19,8 @@
 //    }
 //};
 
+int snake_body_x[64] = {random(1, 6)};
+int snake_body_y[64] = {random(1, 6)};
 
 void turn_on_led(int row, int col) {
   turn_off_all_leds();
@@ -52,9 +54,9 @@ void turn_on_all_leds() {
 int joystick() {
   int y = analogRead(A0);
   int x = analogRead(A1);
-  Serial.print(x * 5 / 1023);
-  Serial.print(" ");
-  Serial.println(y * 5 / 1023);
+//  Serial.print(x * 5 / 1023);
+//  Serial.print(" ");
+//  Serial.println(y * 5 / 1023);
   if (x == 2 && y > 2) {
     // up
     return 2; 
@@ -80,12 +82,40 @@ void setup() {
   Serial.begin(9600);
 }
 
+void snake_move(int dir) {
+  if (dir == 2) {
+  // up
+    snake_body_y[0]++; 
+  }
+  if (dir == -2) {
+    // down
+    snake_body_y[0]--; 
+  }
+  if (dir == -1) {
+    // left
+    snake_body_x[0]--; 
+  }
+  if (dir == 1) {
+    // right
+    snake_body_x[0]++; 
+  }
+  if (snake_body_x[0] == 7) {
+    snake_body_x[0] = 1;
+  }
+  if (snake_body_x[0] == -1) {
+    snake_body_x[0] = 6;
+  }
+  if (snake_body_y[0] == 7) {
+    snake_body_y[0] = 1;
+  }
+  if (snake_body_y[0] == -1) {
+    snake_body_x[0] = 6;
+  }
+  turn_on_led(snake_body_x[0], snake_body_y[0]);
+}
 
-int snake_head_x = random(1, 6);
-int snake_head_y = random(1, 6);
-int body[36][2];
 void loop() {
-  joystick();
+  int dir = joystick();
+  snake_move(dir);
   delay(200);
-  turn_on_led(snake_head_x, snake_head_y);
 }
