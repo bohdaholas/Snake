@@ -1,24 +1,3 @@
-//class Snake {
-//  public:
-//    int body[64][2];
-//    int head_x = random(1, 6);
-//      int head_y = random(2, 4);
-//    void move(int dir) {
-//        if (dir == 2) {
-//          
-//        }
-//        if (dir == -2) {
-//          
-//        }
-//        if (dir == -1) {
-//          
-//        }
-//        if (dir == 1) {
-//          
-//        }
-//    }
-//};
-
 int snake_body_x[64] = {random(1, 6)};
 int snake_body_y[64] = {random(1, 6)};
 
@@ -52,11 +31,11 @@ void turn_on_all_leds() {
 }
 
 int joystick() {
-  int y = analogRead(A0);
-  int x = analogRead(A1);
-//  Serial.print(x * 5 / 1023);
-//  Serial.print(" ");
-//  Serial.println(y * 5 / 1023);
+  int y = analogRead(A0) * 5 / 1023;
+  int x = analogRead(A1) * 5 / 1023;
+  Serial.print(x * 5 / 1023);
+  Serial.print(" ");
+  Serial.println(y * 5 / 1023);
   if (x == 2 && y > 2) {
     // up
     return 2; 
@@ -109,7 +88,7 @@ void snake_move(int dir) {
     snake_body_y[0] = 1;
   }
   if (snake_body_y[0] == -1) {
-    snake_body_x[0] = 6;
+    snake_body_y[0] = 6;
   }
   turn_on_led(snake_body_x[0], snake_body_y[0]);
 }
