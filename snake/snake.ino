@@ -1,6 +1,7 @@
 int snake_body_x[64] = {random(1, 6)};
 int snake_body_y[64] = {random(1, 6)};
 
+<<<<<<< HEAD
 int apple_x;
 int apple_y;
 
@@ -10,6 +11,16 @@ int score = 0;
 int apple_on_field = false;
 
 void generate_apple(int apple_x, int apple_y) {
+=======
+int apple_on_field = false;
+
+void generate_apple() {
+  int row, column;
+  row = random(1, 6);
+  column = random(1, 6);
+  turn_on_additional_led(row, column);
+  apple_on_field = true;
+>>>>>>> 0d3d938bf6101b9edc0864dfe86e48f713fe59c5
 }
 
 void turn_on_additional_led(int row, int col) {
@@ -53,11 +64,19 @@ void turn_on_all_leds() {
 }
 
 int joystick() {
+<<<<<<< HEAD
   int y = analogRead(A0) * 5 / 1022;
   int x = analogRead(A1) * 5 / 1023;
   //Serial.print(x);
   //Serial.print("     ");
   //Serial.println(y);
+=======
+  int y = analogRead(A0) * 5 / 1023;
+  int x = analogRead(A1) * 5 / 1023;
+  Serial.print(x);
+  Serial.print("     ");
+  Serial.println(y);
+>>>>>>> 0d3d938bf6101b9edc0864dfe86e48f713fe59c5
   if (x == 2 && y > 2) {
     // up
     return -2; 
@@ -116,9 +135,16 @@ void snake_move(int dir) {
   if (snake_body_x[0] == 0) {
     snake_body_x[0] = 6;
   }
+  
+  // joystick down
   if (snake_body_y[0] == 7) {
     snake_body_y[0] = 1;
   }
+<<<<<<< HEAD
+=======
+
+  // joystick up
+>>>>>>> 0d3d938bf6101b9edc0864dfe86e48f713fe59c5
   if (snake_body_y[0] == 0) {
     snake_body_y[0] = 6;
   }
@@ -160,6 +186,7 @@ int c=0;
 void loop() {
   int dir = joystick();
   snake_move(dir);
+<<<<<<< HEAD
 
   ///////////////////////
   if (!apple_on_field){
@@ -176,4 +203,10 @@ void loop() {
   ///////////////////////
   Serial.print(snake_body_x[5]);
   delay(100);
+=======
+  if (!apple_on_field) {
+    generate_apple();
+  }
+  delay(200);
+>>>>>>> 0d3d938bf6101b9edc0864dfe86e48f713fe59c5
 }
