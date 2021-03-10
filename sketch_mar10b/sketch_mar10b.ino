@@ -50,12 +50,12 @@ void read_joystick() {
   }
   if (is_close(VRx, 500, VRy, 1000)) {
 //    Serial.println("left");
-    x_diff = -1;
+    x_diff = 1;
     y_diff = 0;
   }
   if (is_close(VRx, 500, VRy, 0)) {
 //    Serial.println("right");
-    x_diff = 1;
+    x_diff = -1;
     y_diff = 0;
   }
 }
@@ -122,20 +122,20 @@ void snake_eat() {
 //      Serial.print(snake_y[i]);
 //      Serial.print(" | ");
 //    }
-
-    snake_length = current_snake_length();
+    
+    int snake_length = current_snake_length();
     Serial.print(snake_length);
-    Serial.print("....");
+    Serial.print(" .... ");
     Serial.print(snake_x[snake_length]);
     Serial.print("- ");
     Serial.print(snake_y[current_snake_length()]);
-    snake_x[snake_length] = snake_x[snake_length - 1] - x_diff;
-    snake_y[snake_length] = snake_y[snake_length - 1] - y_diff;
+    snake_x[snake_length] = snake_x[snake_length - 1] - x_diff - 1;
+    snake_y[snake_length] = snake_y[snake_length - 1] - y_diff - 1;
     
-    Serial.print("||||");
-    Serial.print(snake_x[current_snake_length()]);
-    Serial.print("- ");
-    Serial.print(snake_y[current_snake_length()]);
+    Serial.print(" |||| ");
+    Serial.print(snake_x[snake_length]);
+    Serial.print(" - ");
+    Serial.print(snake_y[snake_length]);
     Serial.println();
     
   }
