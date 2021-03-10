@@ -5,6 +5,11 @@ Adafruit_PCD8544 display = Adafruit_PCD8544(7,6,5,4,3);
 const int field_x = 84;
 const int field_y = 48;
 
+int apple_x, apple_y;
+bool apple_on_field = false;
+
+int score;
+
 int head_x = random(1, 84);
 int head_y = random(1, 48);
 
@@ -94,17 +99,61 @@ void snake_teleport() {
 void generate_snake() {
   display.clearDisplay();
   for (int i = 0; i < current_snake_length(); i++) {
-    display.drawPixel(snake_x[i], snake_y[i], BLACK); 
-  } 
+    display.drawPixel(snake_x[i], snake_y[i], BLACK);
+  }
+  
+  display.drawPixel(apple_x, apple_y, BLACK);
+  
   display.display();
   delay(100);
+}
+
+void snake_eat() {
+  if (!apple_on_field){
+    generate_apple();
+  }
+
+  if (snake_x[0] == apple_x && snake_y[0] == apple_y){
+    score++;
+    apple_on_field = false;
+//    for (int i = 0; i < current_snake_length(); i++) {
+//      Serial.print(snake_x[i]);
+//      Serial.print(", ");
+//      Serial.print(snake_y[i]);
+//      Serial.print(" | ");
+//    }
+
+    snake_length = current_snake_length();
+    Serial.print(snake_length);
+    Serial.print("....");
+    Serial.print(snake_x[snake_length]);
+    Serial.print("- ");
+    Serial.print(snake_y[current_snake_length()]);
+    snake_x[snake_length] = snake_x[snake_length - 1] - x_diff;
+    snake_y[snake_length] = snake_y[snake_length - 1] - y_diff;
+    
+    Serial.print("||||");
+    Serial.print(snake_x[current_snake_length()]);
+    Serial.print("- ");
+    Serial.print(snake_y[current_snake_length()]);
+    Serial.println();
+    
+  }
+
+  
+}
+
+void generate_apple(){
+  apple_x = random(1, 84);
+  apple_y = random(1, 48);
+  apple_on_field = true;
 }
 
 void init_display() {
   display.begin();
   display.clearDisplay();
   display.display();
-  display.setContrast(70);
+  display.setContrast(40);
   delay(500);
 }
 
@@ -120,6 +169,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   read_joystick();
   generate_snake();
+  snake_eat();
   snake_move();
   snake_teleport();
 } 
