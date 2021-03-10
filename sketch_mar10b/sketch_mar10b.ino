@@ -98,9 +98,15 @@ void snake_teleport() {
 
 void generate_snake() {
   display.clearDisplay();
+  //Serial.print(current_snake_length());
   for (int i = 0; i < current_snake_length(); i++) {
+    Serial.print(snake_x[i]);
+    Serial.print(" --- ");
+    Serial.println(snake_y[i]);
     display.drawPixel(snake_x[i], snake_y[i], BLACK);
   }
+  
+  Serial.println("");
   
   display.drawPixel(apple_x, apple_y, BLACK);
   
@@ -128,9 +134,13 @@ void snake_eat() {
     Serial.print(" .... ");
     Serial.print(snake_x[snake_length]);
     Serial.print("- ");
-    Serial.print(snake_y[current_snake_length()]);
-    snake_x[snake_length] = snake_x[snake_length - 1] - x_diff - 1;
-    snake_y[snake_length] = snake_y[snake_length - 1] - y_diff - 1;
+    Serial.print(snake_y[snake_length]);
+    
+    Serial.print(snake_x[snake_length-1]);
+    Serial.print(" ... ");
+    Serial.print(snake_y[snake_length-1]);
+    snake_x[snake_length] = snake_x[snake_length - 1] - x_diff;
+    snake_y[snake_length] = snake_y[snake_length - 1] - y_diff;
     
     Serial.print(" |||| ");
     Serial.print(snake_x[snake_length]);
@@ -169,7 +179,7 @@ void loop() {
   // put your main code here, to run repeatedly:
   read_joystick();
   generate_snake();
-  snake_eat();
   snake_move();
   snake_teleport();
+  snake_eat();
 } 
