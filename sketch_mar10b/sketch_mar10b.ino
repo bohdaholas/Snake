@@ -5,6 +5,30 @@ Adafruit_PCD8544 display = Adafruit_PCD8544(7,6,5,4,3);
 const int field_x = 84;
 const int field_y = 48;
 
+int pin_c1 = 2;
+int pin_a = 13;
+int pin_f = 1;
+int pin_b = 12;
+int pin_e = 8;
+int pin_d = 9;
+int pin_c = 10;
+int pin_g = 11;
+
+int segment_pins[8] = {pin_c1, pin_a, pin_f, pin_b, pin_e, pin_d, pin_c, pin_g};
+
+int zero[6] = {pin_a, pin_f, pin_b, pin_e, pin_d, pin_c};
+int one[2] = {pin_b, pin_c};
+int two[6] = {pin_a, pin_f, pin_b, pin_e, pin_d, pin_c};
+int three[5] = {pin_a, pin_b, pin_e, pin_d, pin_g};
+int four[4] = {pin_g, pin_f, pin_b, pin_d};
+int five[5] = {pin_a, pin_f, pin_g, pin_d, pin_c};
+int six[6] = {pin_a, pin_f, pin_e, pin_d, pin_c, pin_g};
+int seven[3] = {pin_a, pin_b, pin_c};
+int eight[7] = {pin_a, pin_f, pin_b, pin_e, pin_d, pin_c, pin_g};
+int nine[5] = {pin_a, pin_f, pin_b, pin_c, pin_g};
+
+//int numbers[10] = {zero, one, two, thre/e, four, five, six, seven, eight, nine};
+
 int apple_x, apple_y;
 bool apple_on_field = false;
 
@@ -123,7 +147,7 @@ void snake_eat() {
 //      Serial.print(" | ");
 //    }
 
-    snake_length = current_snake_length();
+    int snake_length = current_snake_length();
     Serial.print(snake_length);
     Serial.print("....");
     Serial.print(snake_x[snake_length]);
@@ -153,9 +177,36 @@ void init_display() {
   display.begin();
   display.clearDisplay();
   display.display();
-  display.setContrast(40);
+  display.setContrast(70);
   delay(500);
 }
+
+void init_7_segments_board() {
+  for (int i = 0; i < 8; i++) {
+    pinMode(segment_pins[i], OUTPUT);  
+  }
+}
+
+//void light_number(int score) {
+//  for (int i = 0; i < 8; i++) {
+//    digitalWrite(segment_pins[i], 0);  
+//  }
+//  digitalWrite(pin_c1, 1);
+//  for (int i = 0; i < 8; i++) {
+//    digitalWrite(number[i], 1);  
+//  } 
+//}
+
+void light_number() {
+  for (int i = 0; i < 8; i++) {
+    digitalWrite(segment_pins[i], 0);  
+  }
+  digitalWrite(pin_c1, 1);
+  for (int i = 0; i < 2; i++) {
+    digitalWrite(one[i], 1);  
+  } 
+}
+
 
 void setup() {
   // put your setup code here, to run once:
@@ -172,4 +223,6 @@ void loop() {
   snake_eat();
   snake_move();
   snake_teleport();
+  init_7_segments_board();
+  light_number();
 } 
