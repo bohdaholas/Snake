@@ -34,22 +34,33 @@ bool apple_on_field = false;
 
 int score;
 
+bool dead = false;
+
 int head_x = random(1, 84);
 int head_y = random(1, 48);
 
 int snake_x[field_x] = {head_x, head_x + 1, head_x + 2};
-int snake_y[field_y] = {head_y, head_y + 1, head_y + 2};
+int snake_y[field_y] = {head_y, head_y, head_y};
 int snake_max_length = field_x * field_y;
 
 int x_diff, y_diff;
 
 bool is_close(int VRx, int expected_VRx, int VRy, int expected_VRy) {
-  int accuracy = 50;
+  int accuracy = 350;
     if ( abs(VRx - expected_VRx) < accuracy &&
           abs(VRy - expected_VRy) < accuracy) {
         return true;
     }
     return false;
+}
+
+bool self_kill(){
+  for(int i = 1; i < current_snake_length(); i++){
+    if(snake_x[i] == snake_x[0] && snake_y[i] == snake_y[0]){
+      return true;
+    }
+  }
+  return false;
 }
 
 void print_joystick(int VRx, int VRy) {
@@ -62,24 +73,20 @@ void read_joystick() {
   int VRx = analogRead(A0);
   int VRy = analogRead(A1);
   // print_joystick(VRx, VRy);
-  if (is_close(VRx, 0, VRy, 500)) {
-//    Serial.println("up");
+  if (is_close(VRx, 0, VRy, 500) && y_diff != -1) {
     x_diff = 0;
     y_diff = 1;
   }
-  if (is_close(VRx, 980, VRy, 480)) {
-//    Serial.println("down");
+  if (is_close(VRx, 980, VRy, 480) && y_diff != 1) {
     x_diff = 0;
     y_diff = -1;
   }
-  if (is_close(VRx, 500, VRy, 1000)) {
-//    Serial.println("left");
-    x_diff = -1;
+  if (is_close(VRx, 500, VRy, 1000) && x_diff != -1) {
+    x_diff = 1;
     y_diff = 0;
   }
-  if (is_close(VRx, 500, VRy, 0)) {
-//    Serial.println("right");
-    x_diff = 1;
+  if (is_close(VRx, 500, VRy, 0) && x_diff != 1) {
+    x_diff = -1;
     y_diff = 0;
   }
 }
@@ -94,7 +101,7 @@ int current_snake_length() {
 } 
 
 void snake_move() {
-  for (int i = 1; i < current_snake_length(); i++) {
+  for (int i = current_snake_length()-1; i > 0; i--) {
     snake_x[i] = snake_x[i - 1];
     snake_y[i] = snake_y[i - 1];
   } 
@@ -106,7 +113,6 @@ void snake_teleport() {
   for (int i = 0; i < current_snake_length(); i++) {
     if (snake_x[i] == 85) {
       snake_x[i] = 2;
-      
     }
     if (snake_x[i] == 1) {
       snake_x[i] = 84;
@@ -140,28 +146,9 @@ void snake_eat() {
   if (snake_x[0] == apple_x && snake_y[0] == apple_y){
     score++;
     apple_on_field = false;
-//    for (int i = 0; i < current_snake_length(); i++) {
-//      Serial.print(snake_x[i]);
-//      Serial.print(", ");
-//      Serial.print(snake_y[i]);
-//      Serial.print(" | ");
-//    }
-
     int snake_length = current_snake_length();
-    Serial.print(snake_length);
-    Serial.print("....");
-    Serial.print(snake_x[snake_length]);
-    Serial.print("- ");
-    Serial.print(snake_y[current_snake_length()]);
     snake_x[snake_length] = snake_x[snake_length - 1] - x_diff;
     snake_y[snake_length] = snake_y[snake_length - 1] - y_diff;
-    
-    Serial.print("||||");
-    Serial.print(snake_x[current_snake_length()]);
-    Serial.print("- ");
-    Serial.print(snake_y[current_snake_length()]);
-    Serial.println();
-    
   }
 
   
@@ -209,7 +196,6 @@ void light_number() {
 
 
 void setup() {
-  // put your setup code here, to run once:
   Serial.begin(9600);
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
@@ -217,12 +203,18 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  read_joystick();
-  generate_snake();
-  snake_eat();
-  snake_move();
-  snake_teleport();
+  if (!dead){
+    read_joystick();
+    generate_snake();
+    if (x_diff || y_diff){
+      snake_move(); 
+    }
+    snake_teleport();
+    if (self_kill()){
+      dead = true;
+    }
+    snake_eat();
+  }
   init_7_segments_board();
   light_number();
 } 
