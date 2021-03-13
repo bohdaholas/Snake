@@ -1,7 +1,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_PCD8544.h>
 
-Adafruit_PCD8544 display = Adafruit_PCD8544(7,6,5,4,3);
+Adafruit_PCD8544 display = Adafruit_PCD8544(7, 6, 5, 4, 3);
 
 const int field_x = 84;
 const int field_y = 48;
@@ -51,47 +51,68 @@ int snake_max_length = field_x * field_y;
 
 int x_diff, y_diff;
 
-
-void snake_init(){
-    head_x = random(1, 84);
-    head_y = random(1, 48);
-    
-    int new_snake_x[field_x] = {head_x, head_x + 1, head_x + 2};
-    int new_snake_y[field_y] = {head_y, head_y, head_y};
-
-    for(int i = 0; i < field_x; i++){
-      snake_x[i] = new_snake_x[i];
-    }
-    for(int i = 0; i < field_y; i++){
-      snake_y[i] = new_snake_y[i];
-    }
-    dead = false;
-    is_snake_init = true;
-    x_diff = -1;
-    y_diff = 0;
+static unsigned long last_interrupt;
+bool no_interrupt = false;
+void record_interrupt(){
+  last_interrupt = millis();
+  Serial.print("HI");
+}
+bool check_interrupt(){
+  Serial.print("INT: ");
+  Serial.println(millis() - last_interrupt);
+  if (millis() - last_interrupt >= 100){
+    last_interrupt = millis();
+    no_interrupt = true;
+    Serial.print(" --");
+    Serial.println(no_interrupt);
+  }
+  else{
+    no_interrupt = false;
+  }
 }
 
-void snake_reborn(){
-    apple_on_field = false;
+void snake_init() {
+  head_x = random(1, 84);
+  head_y = random(1, 48);
 
-    snake_init();
-    
-    dead = false;
-    score = 0;
+  int new_snake_x[field_x] = {head_x, head_x + 1, head_x + 2, head_x + 3, head_x + 4, head_x + 5, head_x + 6, head_x + 7, head_x + 8, head_x + 9, head_x + 10};
+  int new_snake_y[field_y] = {head_y, head_y, head_y};
+
+  for (int i = 0; i < field_x; i++) {
+    snake_x[i] = new_snake_x[i];
+  }
+  for (int i = 0; i < field_y; i++) {
+    snake_y[i] = new_snake_y[i];
+  }
+  dead = false;
+  is_snake_init = true;
+  x_diff = -1;
+  y_diff = 0;
+}
+
+void snake_reborn() {
+
+  apple_on_field = false;
+
+  snake_init();
+
+  dead = false;
+  score = 0;
+  delay(111500);
 }
 
 bool is_close(int VRx, int expected_VRx, int VRy, int expected_VRy) {
   int accuracy = 350;
-    if ( abs(VRx - expected_VRx) < accuracy &&
-          abs(VRy - expected_VRy) < accuracy) {
-        return true;
-    }
-    return false;
+  if ( abs(VRx - expected_VRx) < accuracy &&
+       abs(VRy - expected_VRy) < accuracy) {
+    return true;
+  }
+  return false;
 }
 
-bool self_kill(){
-  for(int i = 1; i < current_snake_length(); i++){
-    if(snake_x[i] == snake_x[0] && snake_y[i] == snake_y[0]){
+bool self_kill() {
+  for (int i = 1; i < current_snake_length(); i++) {
+    if (snake_x[i] == snake_x[0] && snake_y[i] == snake_y[0]) {
       return true;
     }
   }
@@ -124,10 +145,10 @@ void read_joystick() {
     x_diff = -1;
     y_diff = 0;
   }
-  if (click_state == 1){
+  if (click_state == 1) {
     joystick_click = false;
   }
-  else if(click_state == 0){
+  else if (click_state == 0) {
     joystick_click = true;
   }
 }
@@ -136,16 +157,16 @@ int current_snake_length() {
   for (int i = 0; i < snake_max_length; i++) {
     if (snake_x[i] == 0 && snake_x[i + 1] == 0 &&
         snake_y[i] == 0 && snake_y[i + 1] == 0) {
-        return i;
+      return i;
     }
-  }  
+  }
 }
 
 void snake_move() {
-  for (int i = current_snake_length()-1; i > 0; i--) {
+  for (int i = current_snake_length() - 1; i > 0; i--) {
     snake_x[i] = snake_x[i - 1];
     snake_y[i] = snake_y[i - 1];
-  } 
+  }
   snake_x[0] += x_diff;
   snake_y[0] += y_diff;
 }
@@ -164,7 +185,7 @@ void snake_teleport() {
     if (snake_y[i] == 1) {
       snake_y[i] = 48;
     }
-  } 
+  }
 }
 
 void generate_snake() {
@@ -172,19 +193,19 @@ void generate_snake() {
   for (int i = 0; i < current_snake_length(); i++) {
     display.drawPixel(snake_x[i], snake_y[i], BLACK);
   }
-  
+
   display.drawPixel(apple_x, apple_y, BLACK);
-  
+
   display.display();
   delay(100);
 }
 
 void snake_eat() {
-  if (!apple_on_field){
+  if (!apple_on_field) {
     generate_apple();
   }
 
-  if (snake_x[0] == apple_x && snake_y[0] == apple_y){
+  if (snake_x[0] == apple_x && snake_y[0] == apple_y) {
     score++;
     apple_on_field = false;
     int snake_length = current_snake_length();
@@ -193,7 +214,7 @@ void snake_eat() {
   }
 }
 
-void generate_apple(){
+void generate_apple() {
   apple_x = random(1, 84);
   apple_y = random(1, 48);
   apple_on_field = true;
@@ -209,60 +230,62 @@ void init_display() {
 
 void init_7_segments_board() {
   for (int i = 0; i < 8; i++) {
-    pinMode(segment_pins[i], OUTPUT);  
+    pinMode(segment_pins[i], OUTPUT);
   }
 }
 
 //void light_number(int score) {
 //  for (int i = 0; i < 8; i++) {
-//    digitalWrite(segment_pins[i], 0);  
+//    digitalWrite(segment_pins[i], 0);
 //  }
 //  digitalWrite(pin_c1, 1);
 //  for (int i = 0; i < 8; i++) {
-//    digitalWrite(number[i], 1);  
-//  } 
+//    digitalWrite(number[i], 1);
+//  }
 //}
 
 void light_number() {
   for (int i = 0; i < 8; i++) {
-    digitalWrite(segment_pins[i], 0);  
+    digitalWrite(segment_pins[i], 0);
   }
   digitalWrite(pin_c1, 1);
   for (int i = 0; i < 2; i++) {
-    digitalWrite(one[i], 1);  
-  } 
+    digitalWrite(one[i], 1);
+  }
 }
-
 
 void setup() {
   Serial.begin(9600);
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
-  pinMode(BUTTON_PIN, INPUT_PULLUP);
-  attachInterrupt(1, snake_reborn, FALLING);
+  //pinMode(BUTTON_PIN, INPUT_PULLUP);
+  attachInterrupt(digitalPinToInterrupt(2), check_interrupt, FALLING);
   init_display();
 }
 
 void loop() {
-  if(!is_snake_init){
+  Serial.print("CYC");
+  Serial.println(no_interrupt);
+  if (!is_snake_init) {
     snake_init();
   }
   read_joystick();
-  if (!dead){
+  if (!dead) {
     generate_snake();
-    if (x_diff || y_diff){
-      snake_move(); 
+    if (x_diff || y_diff) {
+      snake_move();
     }
     snake_teleport();
-    if (self_kill()){
+    if (self_kill()) {
       dead = true;
     }
     snake_eat();
   }
-  else if (joystick_click){
-      snake_reborn();
+  else if (no_interrupt) {
+    snake_reborn();
+    Serial.print("LOLLL");
   }
-  
+
   init_7_segments_board();
   light_number();
-} 
+}
