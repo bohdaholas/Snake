@@ -1,4 +1,4 @@
- #include <Adafruit_GFX.h>
+#include <Adafruit_GFX.h>
 #include <Adafruit_PCD8544.h>
 
 Adafruit_PCD8544 display = Adafruit_PCD8544(7,6,5,4,3);
@@ -68,6 +68,7 @@ void snake_init(){
     dead = false;
     is_snake_init = true;
     x_diff = -1;
+    y_diff = 0;
 }
 
 void snake_reborn(){
@@ -190,8 +191,6 @@ void snake_eat() {
     snake_x[snake_length] = snake_x[snake_length - 1] - x_diff;
     snake_y[snake_length] = snake_y[snake_length - 1] - y_diff;
   }
-
-  
 }
 
 void generate_apple(){
@@ -200,12 +199,11 @@ void generate_apple(){
   apple_on_field = true;
 }
 
-
 void init_display() {
   display.begin();
   display.clearDisplay();
   display.display();
-  display.setContrast(40);
+  display.setContrast(70);
   delay(500);
 }
 
@@ -241,6 +239,7 @@ void setup() {
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
+  attachInterrupt(1, snake_reborn, FALLING);
   init_display();
 }
 
