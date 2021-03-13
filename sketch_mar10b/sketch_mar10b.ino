@@ -1,9 +1,14 @@
-#include <Adafruit_GFX.h>
+ #include <Adafruit_GFX.h>
 #include <Adafruit_PCD8544.h>
+
 Adafruit_PCD8544 display = Adafruit_PCD8544(7,6,5,4,3);
 
 const int field_x = 84;
 const int field_y = 48;
+
+const int BUTTON_PIN = 2;
+
+bool joystick_click;
 
 int pin_c1 = 2;
 int pin_a = 13;
@@ -39,8 +44,12 @@ bool dead = false;
 int head_x = random(1, 84);
 int head_y = random(1, 48);
 
-int snake_x[field_x] = {head_x, head_x + 1, head_x + 2};
-int snake_y[field_y] = {head_y, head_y, head_y};
+int snake_x[field_x] = {head_x, head_x + 1, head_x + 2, head_x + 3, head_x + 4, head_x + 5, head_x + 6, head_x + 7, head_x + 8, head_x + 9, head_x + 10};
+int snake_y[field_y] = {head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y};
+
+//int snake_x[field_x] = {head_x, head_x + 1, head_x + 2};
+//int snake_y[field_y] = {head_y, head_y, head_y};
+
 int snake_max_length = field_x * field_y;
 
 int x_diff, y_diff;
@@ -72,7 +81,7 @@ void print_joystick(int VRx, int VRy) {
 void read_joystick() {
   int VRx = analogRead(A0);
   int VRy = analogRead(A1);
-  // print_joystick(VRx, VRy);
+  int click_state = digitalRead(BUTTON_PIN);
   if (is_close(VRx, 0, VRy, 500) && y_diff != -1) {
     x_diff = 0;
     y_diff = 1;
@@ -89,6 +98,12 @@ void read_joystick() {
     x_diff = -1;
     y_diff = 0;
   }
+  if (click_state == 1){
+    joystick_click = false;
+  }
+  else if(click_state == 0){
+    joystick_click = true;
+  }
 }
 
 int current_snake_length() {
@@ -98,7 +113,7 @@ int current_snake_length() {
         return i;
     }
   }  
-} 
+}
 
 void snake_move() {
   for (int i = current_snake_length()-1; i > 0; i--) {
@@ -160,11 +175,31 @@ void generate_apple(){
   apple_on_field = true;
 }
 
+void snake_reborn(){
+    Serial.println(current_snake_length());
+    apple_on_field = false;   
+    head_x = random(1, 84);
+    head_y = random(1, 48);
+    
+    int new_snake_x[field_x] = {head_x, head_x + 1, head_x + 2, head_x + 3, head_x + 4, head_x + 5, head_x + 6, head_x + 7, head_x + 8, head_x + 9, head_x + 10};
+    int new_snake_y[field_y] = {head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y};
+
+    for(int i = 0; i < field_x; i++){
+      snake_x[i] = new_snake_x[i];
+    }
+    for(int i = 0; i < field_y; i++){
+      snake_y[i] = new_snake_y[i];
+    }
+    dead = false;
+    score = 0;
+    Serial.println(current_snake_length());
+}
+
 void init_display() {
   display.begin();
   display.clearDisplay();
   display.display();
-  display.setContrast(70);
+  display.setContrast(40);
   delay(500);
 }
 
@@ -199,12 +234,14 @@ void setup() {
   Serial.begin(9600);
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  //attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), snake_reborn, FALLING);
   init_display();
 }
 
 void loop() {
+  read_joystick();
   if (!dead){
-    read_joystick();
     generate_snake();
     if (x_diff || y_diff){
       snake_move(); 
@@ -215,6 +252,10 @@ void loop() {
     }
     snake_eat();
   }
+  else if (joystick_click){
+      snake_reborn();
+  }
+  
   init_7_segments_board();
   light_number();
 } 
