@@ -38,21 +38,46 @@ int apple_x, apple_y;
 bool apple_on_field = false;
 
 int score;
+bool dead;
+bool is_snake_init;
 
-bool dead = false;
+int head_x;
+int head_y;
 
-int head_x = random(1, 84);
-int head_y = random(1, 48);
-
-int snake_x[field_x] = {head_x, head_x + 1, head_x + 2, head_x + 3, head_x + 4, head_x + 5, head_x + 6, head_x + 7, head_x + 8, head_x + 9, head_x + 10};
-int snake_y[field_y] = {head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y};
-
-//int snake_x[field_x] = {head_x, head_x + 1, head_x + 2};
-//int snake_y[field_y] = {head_y, head_y, head_y};
+int snake_x[field_x];
+int snake_y[field_y];
 
 int snake_max_length = field_x * field_y;
 
 int x_diff, y_diff;
+
+
+void snake_init(){
+    head_x = random(1, 84);
+    head_y = random(1, 48);
+    
+    int new_snake_x[field_x] = {head_x, head_x + 1, head_x + 2};
+    int new_snake_y[field_y] = {head_y, head_y, head_y};
+
+    for(int i = 0; i < field_x; i++){
+      snake_x[i] = new_snake_x[i];
+    }
+    for(int i = 0; i < field_y; i++){
+      snake_y[i] = new_snake_y[i];
+    }
+    dead = false;
+    is_snake_init = true;
+    x_diff = -1;
+}
+
+void snake_reborn(){
+    apple_on_field = false;
+
+    snake_init();
+    
+    dead = false;
+    score = 0;
+}
 
 bool is_close(int VRx, int expected_VRx, int VRy, int expected_VRy) {
   int accuracy = 350;
@@ -175,25 +200,6 @@ void generate_apple(){
   apple_on_field = true;
 }
 
-void snake_reborn(){
-    Serial.println(current_snake_length());
-    apple_on_field = false;   
-    head_x = random(1, 84);
-    head_y = random(1, 48);
-    
-    int new_snake_x[field_x] = {head_x, head_x + 1, head_x + 2, head_x + 3, head_x + 4, head_x + 5, head_x + 6, head_x + 7, head_x + 8, head_x + 9, head_x + 10};
-    int new_snake_y[field_y] = {head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y, head_y};
-
-    for(int i = 0; i < field_x; i++){
-      snake_x[i] = new_snake_x[i];
-    }
-    for(int i = 0; i < field_y; i++){
-      snake_y[i] = new_snake_y[i];
-    }
-    dead = false;
-    score = 0;
-    Serial.println(current_snake_length());
-}
 
 void init_display() {
   display.begin();
@@ -235,11 +241,13 @@ void setup() {
   pinMode(A0, INPUT);
   pinMode(A1, INPUT);
   pinMode(BUTTON_PIN, INPUT_PULLUP);
-  //attachInterrupt(digitalPinToInterrupt(BUTTON_PIN), snake_reborn, FALLING);
   init_display();
 }
 
 void loop() {
+  if(!is_snake_init){
+    snake_init();
+  }
   read_joystick();
   if (!dead){
     generate_snake();
